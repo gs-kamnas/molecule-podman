@@ -51,6 +51,9 @@ class Podman(Driver):
             hostname: instance
             image: image_name:tag
             dockerfile: Dockerfile.j2
+            extra_packages:
+              - zsh
+              - openssh
             pull: True|False
             pre_build_image: True|False
             registry:
@@ -63,6 +66,7 @@ class Podman(Driver):
             tty: True|False
             pid_mode: host
             privileged: True|False
+            systemd: True|False
             security_opts:
               - seccomp=unconfined
             volumes:

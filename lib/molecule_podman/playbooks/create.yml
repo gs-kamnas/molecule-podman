@@ -6,6 +6,7 @@
   become: "{{ not (item.rootless|default(true)) }}"
   vars:
     podman_exec: "{{ lookup('env','MOLECULE_PODMAN_EXECUTABLE')|default('podman',true) }}"
+    local_tag_prefix: "{{ lookup('env','MOLECULE_PODMAN_LOCAL_IMAGE_TAG_PREFIX')|default('molecule_local',true) }}"
   tasks:
     - name: get podman executable path
       command: which {{ podman_exec }}
@@ -55,7 +56,7 @@
 
     - name: Discover local Podman images
       podman_image_info:
-        name: "molecule_local/{{ item.item.name }}"
+        name: "{{ local_tag_prefix }}/{{ item.item.name }}"
         executable: "{{ podman_exec }}"
       with_items: "{{ platforms.results }}"
       when:
@@ -66,7 +67,7 @@
       command: >
         {{ podman_cmd }} build
         -f {{ item.dest }}
-        -t molecule_local/{{ item.item.image }}
+        -t {{ local_tag_prefix }}/{{ item.item.image }}
         {% if item.item.buildargs is defined %}{% for i,k in item.item.buildargs.items() %}--build-arg={{ i }}={{ k }} {% endfor %}{% endif %}
         {% if item.item.pull is defined %}--pull={{ item.item.pull }}{% endif %}
       with_items: "{{ platforms.results }}"
@@ -112,7 +113,8 @@
         {% if item.cgroup_manager is defined %}--cgroup-manager={{ item.cgroup_manager }}{% endif %}
         {% if item.storage_opt is defined %}--storage-opt={{ item.storage_opt }}{% endif %}
         {% if item.storage_driver is defined %}--storage-driver={{ item.storage_driver }}{% endif %}
-        {{ item.pre_build_image | default(false) | ternary('', 'molecule_local/') }}{{ item.image }}
+        {% if item.systemd is defined %}--systemd={{ item.systemd|string|lower }}{% endif %}
+        {{ item.pre_build_image | default(false) | ternary('', local_tag_prefix+'/') }}{{ item.image }}
         {{ (command_directives_dict | default({}))[item.name] | default('') }}
       register: server
       with_items: "{{ molecule_yml.platforms }}"
