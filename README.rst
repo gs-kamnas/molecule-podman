@@ -26,9 +26,11 @@ This plugin requires `containers.podman` collection to be present:
 
 Please note that this driver is currently in its early stage of development.
 
-Change podman executable
-========================
+Configuration Variables
+=======================
 
+MOLECULE_PODMAN_EXECUTABLE
+--------------------------
 To change the podman executable from the standard podman, export environment
 variable ``MOLECULE_PODMAN_EXECUTABLE``. For instance, if you wish to run
 molecule with ``podman-remote`` instead of ordinary ``podman``, the variable
@@ -38,7 +40,29 @@ can be exported as:
 
    $ export MOLECULE_PODMAN_EXECUTABLE=podman-remote
 
+MOLECULE_PODMAN_LOCAL_IMAGE_TAG_PREFIX
+--------------------------------------
+To change the tag prefix used for locally built images from the default of ``molecule_local``,
+export environment variable ``MOLECULE_PODMAN_LOCAL_IMAGE_TAG_PREFIX``. For example, the below
+will result in local images being tagged ``molecule_local_myproject/<path to upstream image>``.
+
+This should be set when running molecule under CI/CD systems that may run more than one concurrent
+molecule test as the same user using the same base/reference image
+in order to avoid potential race conditions.
+
+.. code-block:: console
+
+   $ export MOLECULE_PODMAN_LOCAL_IMAGE_TAG_PREFIX="molecule_local_myproject"
+
 .. _get-involved:
+
+Implementation Notes
+====================
+
+Image Annotations
+-----------------
+Locally built images using the included Dockerfile are annotated with label
+``com.ansible.community.generator`` set to the constant value ``molecule-podman``
 
 Get Involved
 ============
