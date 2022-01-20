@@ -23,10 +23,10 @@ from __future__ import absolute_import
 
 import distutils.spawn
 import os
+from functools import lru_cache
 
 from molecule import logger, util
 from molecule.api import Driver
-from molecule.util import lru_cache
 
 log = logger.get_logger(__name__)
 
